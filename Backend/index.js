@@ -9,6 +9,11 @@ let tasks = [
   { id: 2, title: "Hacer ejercicio", completed: false },
   { id: 3, title: "Estudiar Node.js", completed: true },
 ];
+
+app.get("/tasks", (req, res) => {
+  res.json(tasks);
+});
+
 app.post("/tasks", (req, res) => {
   const { title } = req.body || {};
   if (!title || !String(title).trim()) {
@@ -17,10 +22,6 @@ app.post("/tasks", (req, res) => {
   const task = { id: AUTO_ID++, title: String(title).trim(), completed: false };
   tasks.push(task);
   return res.status(201).json(task);
-});
-
-app.listen(PORT, () => {
-  console.log(`API (solo POST) en http://localhost:${PORT}`);
 });
 
 app.put("/tasks/:id", (req, res) => {
@@ -158,4 +159,8 @@ app.patch("/tasks/:id/uncomplete", (req, res) => {
       message: "Ocurrió un error al procesar la solicitud",
     });
   }
+});
+
+app.listen(PORT, () => {
+  console.log(`API (solo POST) en http://localhost:${PORT}`);
 });
