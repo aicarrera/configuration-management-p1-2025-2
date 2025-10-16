@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Team Task Tracker</title>
+  
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Team Task Tracker</h1>
+          <div class="meta">Conectado a localhost:3001</div>
+        </div>
+      </div>
+      <div class="summary">
+        <span id="countAll" class="chip">Total: 0</span>
+        <span id="countOpen" class="chip">Pendientes: 0</span>
+        <span id="countDone" class="chip">Completadas: 0</span>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="toolbar">
+        <input id="inputTitle" type="text" placeholder="Nueva tarea (p. ej. Escribir reporte)..." minlength="2" required />
+        <button id="btnAdd">Agregar</button>
+      </div>
+
+      <div class="list">
+        <ul id="taskList" class="tasks" aria-live="polite"></ul>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:3001";
+
+    const api = {
+      async getTasks() {
+        const res = await fetch(`${API_BASE}/tasks`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        return await res.json();
+      },
+      async postTask(title) {
+        const res = await fetch(`${API_BASE}/tasks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        return await res.json();
+      },
+      async putTask(id, completed) {
+        const res = await fetch(`${API_BASE}/tasks/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ completed })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        return await res.json();
+      }
+    };
+
+    const state = {
+      items: [],
+      get stats() {
+        const total = this.items.length;
+        const done = this.items.filter(t => t.completed).length;
+        return { total, done, open: total - done };
+      }
+    };
+
+    const el = {
+      list: document.getElementById("taskList"),
+      input: document.getElementById("inputTitle"),
+      btnAdd: document.getElementById("btnAdd"),
+      countAll: document.getElementById("countAll"),
+      countOpen: document.getElementById("countOpen"),
+      countDone: document.getElementById("countDone")
+    };
+
+    function fmtDate(iso) {
+      try {
+        const d = new Date(iso);
+        const f = new Intl.DateTimeFormat("es-EC", {
+          dateStyle: "medium", timeStyle: "short"
+        });
+        return f.format(d);
+      } catch {
+        return iso;
+      }
+    }
+
+    function render() {
+      const sorted = [...state.items].sort((a,b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+
+      el.list.innerHTML = sorted.map(t => {
+        const done = t.completed ? "done" : "";
+        const badge = t.completed ? '<span class="badge done">Completada</span>' :
+                                    '<span class="badge todo">Pendiente</span>';
+        const completedInfo = t.completedAt ? `<span>Completada: ${fmtDate(t.completedAt)}</span>` : "";
+
+        return `
+          <li class="task" data-id="${t.id}">
+            <div class="check">
+              <input type="checkbox" ${t.completed ? "checked" : ""} aria-label="Marcar completada">
+            </div>
+            <div class="titleBlock">
+              <div class="taskTitle ${done}">${escapeHtml(t.title)}</div>
+              <div class="metaRow">
+                ${badge}
+                <span>Creada: ${fmtDate(t.createdAt)}</span>
+                ${completedInfo}
+              </div>
+            </div>
+          </li>
+        `;
+      }).join("");
+
+      const { total, open, done } = state.stats;
+      el.countAll.textContent = `Total: ${total}`;
+      el.countOpen.textContent = `Pendientes: ${open}`;
+      el.countDone.textContent = `Completadas: ${done}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function showError(msg) {
+      el.list.innerHTML = `<div class="error">${escapeHtml(msg)}</div>`;
+    }
+
+    el.btnAdd.addEventListener("click", async () => {
+      const title = el.input.value.trim();
+      if (title.length < 2) {
+        el.input.focus();
+        return;
+      }
+      try {
+        const created = await api.postTask(title);
+        state.items.unshift(created);
+        el.input.value = "";
+        render();
+      } catch (err) {
+        alert("No se pudo agregar la tarea: " + err.message);
+      }
+    });
+
+    el.input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        el.btnAdd.click();
+      }
+    });
+
+    el.list.addEventListener("change", async (e) => {
+      const li = e.target.closest("li.task");
+      if (!li) return;
+      const id = Number(li.dataset.id);
+      if (e.target.matches('input[type="checkbox"]')) {
+        const newCompleted = e.target.checked;
+        try {
+          const updated = await api.putTask(id, newCompleted);
+          const idx = state.items.findIndex(t => t.id === id);
+          if (idx !== -1) state.items[idx] = updated;
+          render();
+        } catch (err) {
+          alert("No se pudo actualizar la tarea: " + err.message);
+          e.target.checked = !newCompleted;
+        }
+      }
+    });
+
+    async function bootstrap() {
+      try {
+        state.items = await api.getTasks();
+        render();
+      } catch (err) {
+        showError("Error al conectar con el backend en localhost:3001. Asegúrate de que el servidor esté corriendo.");
+        console.error(err);
+      }
+    }
+
+    bootstrap();
+  </script>
+</body>
+</html>
