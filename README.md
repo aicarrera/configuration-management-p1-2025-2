@@ -14,3 +14,9 @@ b. Backend
 i. Alvarez: Implements the GET /tasks endpoint to retrieve all tasks.
 ii. Alvarez: Develops the POST /tasks endpoint to add a new task.
 iii. Miranda: Creates the PUT /tasks/:id endpoint to mark tasks as completed.
+
+
+Intrucciones de ejecución 
+Inicializar el servidor: Navegar hacia la ruta del backend. Instalar las librerias necesarias con npm install. 
+Ejecutar el servidor: con el comando: node index.js
+Abrir el archivo .html, ubicado en la carpeta frontend
