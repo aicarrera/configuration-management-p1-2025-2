@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Team Task Tracker — Frontend Completo</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f6f8fb;
+      margin: 0;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 720px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.4rem
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ddd
+    }
+
+    button {
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      cursor: pointer
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0
+    }
+
+    li {
+      padding: 10px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    li.completed {
+      text-decoration: line-through;
+      color: #888;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 0.9rem
+    }
+
+    .msg {
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 10px
+    }
+
+    .msg.error {
+      background: #fff0f0;
+      color: #8b1d1d;
+      border: 1px solid #ffd4d6
+    }
+
+    .msg.info {
+      background: #f0f7ff;
+      color: #084298;
+      border: 1px solid #dbeeff
+    }
+
+    footer {
+      margin-top: 12px;
+      color: #666;
+      font-size: 0.85rem;
+      text-align: center
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>Team Task Tracker</h1>
+    <div id="alerts"></div>
+
+    <div class="controls" aria-label="Agregar nueva tarea">
+      <input id="new-task" type="text" placeholder="Escribe una nueva tarea (campo title)" aria-label="nueva tarea">
+      <button id="add-btn">Agregar</button>
+    </div>
+
+    <div class="muted" id="status">Estado: inicializando...</div>
+    <ul id="tasks" aria-live="polite"></ul>
+
+    <footer>Para probar localmente: backend en <code>http://localhost:3000</code>. Servir este archivo con Live Server o
+      <code>python -m http.server</code>.</footer>
+  </div>
+
+  <script>
+    const apiUrl = 'http://localhost:3000/tasks';
+
+    const tasksEl = document.getElementById('tasks');
+    const newTaskInput = document.getElementById('new-task');
+    const addBtn = document.getElementById('add-btn');
+    const statusEl = document.getElementById('status');
+    const alertsEl = document.getElementById('alerts');
+
+    let tasks = [];
+    let loading = false;
+
+    function showAlert(text, type = 'info', duration = 3500) {
+      alertsEl.innerHTML = '';
+      const div = document.createElement('div');
+      div.className = `msg ${type === 'error' ? 'error' : 'info'}`;
+      div.textContent = text;
+      alertsEl.appendChild(div);
+      if (duration) setTimeout(() => { if (alertsEl.contains(div)) alertsEl.removeChild(div); }, duration);
+    }
+    function setStatus(t) { statusEl.textContent = `Estado: ${t}`; }
+
+    function render() {
+      tasksEl.innerHTML = '';
+      if (!tasks.length) {
+        tasksEl.innerHTML = '<li class="muted">No hay tareas aún</li>';
+        return;
+      }
+      tasks.forEach(t => {
+        const li = document.createElement('li');
+        if (t.completed) {
+          li.classList.add('completed');
+        }
+        li.addEventListener('click', () => {
+          if (!loading) toggleTaskStatus(t.id, !t.completed);
+        });
+
+        const title = document.createElement('span');
+        title.textContent = t.title;
+        li.appendChild(title);
+
+        const meta = document.createElement('small');
+        meta.className = 'muted';
+        meta.textContent = t.completed ? 'Completada' : 'Pendiente';
+        li.appendChild(meta);
+
+        tasksEl.appendChild(li);
+      });
+    }
+
+    async function loadTasks() {
+      setLoading(true);
+      setStatus('cargando tareas...');
+      try {
+        const res = await fetch(apiUrl, { cache: 'no-store' });
+        if (!res.ok) throw new Error('GET /tasks error: ' + res.status);
+        tasks = await res.json();
+        render();
+        setStatus('conectado');
+      } catch (err) {
+        console.error(err);
+        showAlert('No se pudieron cargar las tareas. ¿El backend corre en http://localhost:3000 ?', 'error');
+        tasks = [];
+        render();
+        setStatus('offline');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function addTask(title) {
+      setLoading(true);
+      setStatus('agregando tarea...');
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, completed: false })
+        });
+        if (res.status === 400) {
+          const err = await res.json();
+          throw new Error(err.error || 'Bad Request');
+        }
+        if (!res.ok) throw new Error('POST /tasks error: ' + res.status);
+        const created = await res.json();
+        tasks.push(created);
+        render();
+        showAlert('Tarea agregada', 'info', 2000);
+      } catch (err) {
+        console.error(err);
+        showAlert('Error al agregar tarea: ' + err.message, 'error', 6000);
+      } finally {
+        setLoading(false);
+        setStatus('listo');
+      }
+    }
+
+    async function toggleTaskStatus(id, newStatus) {
+      setLoading(true);
+      setStatus('actualizando tarea...');
+      try {
+        const res = await fetch(`${apiUrl}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ completed: newStatus })
+        });
+        if (!res.ok) throw new Error('PUT /tasks/:id error: ' + res.status);
+
+        const taskToUpdate = tasks.find(t => t.id === id);
+        if (taskToUpdate) {
+          taskToUpdate.completed = newStatus;
+        }
+        render();
+      } catch (err) {
+        console.error(err);
+        showAlert('Error al actualizar la tarea.', 'error');
+      } finally {
+        setLoading(false);
+        setStatus('listo');
+      }
+    }
+
+    addBtn.addEventListener('click', async () => {
+      const title = newTaskInput.value.trim();
+      if (!title) { showAlert('Escribe una tarea antes de agregarla.', 'error'); return; }
+      addBtn.disabled = true;
+      await addTask(title);
+      newTaskInput.value = '';
+      addBtn.disabled = false;
+    });
+    newTaskInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addBtn.click(); });
+
+    function setLoading(flag) {
+      loading = flag;
+      addBtn.disabled = flag;
+      if (flag) setStatus('procesando...');
+    }
+
+    loadTasks();
+    setInterval(() => { if (!loading) loadTasks(); }, 20000);
+  </script>
+</body>
+
+</html>
