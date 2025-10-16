@@ -1,5 +1,30 @@
 <!doctype html>
 <html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Team Task Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; }
+    header { display:flex; justify-content:space-between; align-items:center; }
+    ul { padding-left: 1rem; }
+    li.done { text-decoration: line-through; opacity: .7; }
+    form { margin: 1rem 0; display:flex; gap:.5rem; }
+    input, button { padding:.6rem .8rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Team Task Tracker</h1>
+    <button id="refresh">Refrescar</button>
+  </header>
+
+  <form id="new-task-form">
+    <input id="new-task-input" placeholder="Nueva tarea..." required />
+    <button>Agregar</button>
+  </form>
+
+  <ul id="task-list"></ul>
 <body>
   
   <script>
