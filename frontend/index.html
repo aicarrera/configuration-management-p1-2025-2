@@ -1,0 +1,17 @@
+<script>
+  function load() {
+    const tasks = [
+      { id: 1, title: "Tarea de ejemplo", completed: false },
+      { id: 2, title: "Otra tarea", completed: true }
+    ];
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+    tasks.forEach(t => {
+      const li = document.createElement("li");
+      li.textContent = t.title + (t.completed ? "-" : "");
+      list.appendChild(li);
+    });
+  }
+  load();
+</script>
+<ul id="list"></ul>
