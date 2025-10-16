@@ -9,7 +9,21 @@ let tasks = [
     { id: 2, title: 'Hacer el workshop', done: false }
 ];
 
-app.get('/tasks', (req, res) => {
+app.get('/getAll', (req, res) => {
     res.json(tasks);
 });
+app.post('/create', (req, res) => {
+    const { tarea } = req.body;
+    if (!tarea || tarea.trim() === '') {
+      return res.status(400).json({ error: 'El campo tarea es obligatorio' });
+    }
+    const newTask = {
+      id: tasks.length + 1,
+      title: tarea.trim(),
+      done: false
+    };
+    tasks.push(newTask);
+    res.status(201).json(newTask);
+  });
+  
   
