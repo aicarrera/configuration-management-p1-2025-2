@@ -26,8 +26,10 @@ Implement version management in a collaborative development project using Git, w
 
 ## ⚙️ Execution  
 
-To run the backend API locally:
-
-```bash
+### Backend
 cd backend
 node index.js
+
+### Frontend
+Open the file below in your browser:
+Frontend/index.html
