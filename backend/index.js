@@ -3,7 +3,8 @@ const app = express();
 const port = 3000;
 
 let tasks = [
-  { id: 1, title: "Tarea de ejemplo", completed: false }
+  { id: 1, title: "Tarea de ejemplo 1", completed: false },
+  { id: 2, title: "Tarea de ejemplo 2", completed: true }
 ];
 
 app.get('/tasks', (req, res) => {
