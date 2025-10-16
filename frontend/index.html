@@ -17,14 +17,9 @@
 
     <div class="task-form">
         <input type="text" id="taskInput" class="task-input" placeholder="Enter a new task...">
-        <button onclick="addTask()">Add</button>
+        <button type="submit">Add</button>
     </div>
-
-    <ul id="taskList" class="task-list"></ul>
-    <p id="emptyState">No tasks yet.</p>
-
-
-
+	<div id="message"></div>
     <script>
         let tasks = [];
         let editingTaskId = null;     
@@ -62,7 +57,24 @@
           });
         }
         load();
+		document.getElementById('taskForm').addEventListener('submit', async function(e) {
+			e.preventDefault();
+			const task = document.getElementById('taskInput').value;
+			const response = await fetch('http://localhost:4000/tasks', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ description: task })
+			});
+			const messageDiv = document.getElementById('message');
+			if (response.ok) {
+				messageDiv.textContent = 'Task added successfully';
+				document.getElementById('taskForm').reset();
+			} else {
+				messageDiv.textContent = 'Error adding task';
+			}
+		});
 
     </script>
-</body>
 </html>

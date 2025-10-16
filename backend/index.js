@@ -45,6 +45,22 @@ app.put('/tasks/:id', (req, res) => {
   task.completed = true;
   res.json(task);
 });
+// Endpoint POST /tasks para agregar una nueva tarea
+app.post('/tasks', (req, res) => {
+	const { description } = req.body;
+	if (!description) {
+		console.log('Intento fallido de agregar tarea: descripción vacía');
+		return res.status(400).json({ error: 'Descripción requerida' });
+	}
+	const newTask = {
+		id: tasks.length + 1,
+		description,
+		completed: false
+	};
+	tasks.push(newTask);
+	console.log(`Tarea agregada: ${description}`);
+	res.status(201).json(newTask);
+});
 
 app.get("/tasks", (req, res) => {
   res.json(tasks);
