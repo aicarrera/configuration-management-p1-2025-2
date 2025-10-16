@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const port = 3000;
+const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -24,27 +24,6 @@ app.post('/tasks', (req, res) => {
     res.status(201).json(newTask);
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
-
-let tasks = [];
-let nextId = 1;
-
-//GET /tasks
-app.get('/tasks', (req, res) => {
-  res.json(tasks);
-});
-
-//POST /tasks
-app.post('/tasks', (req, res) => {
-  const { title } = req.body;
-  if (!title) return res.status(400).json({ error: 'Título requerido' });
-
-  const newTask = { id: nextId++, title, completed: false };
-  tasks.push(newTask);
-  res.status(201).json(newTask);
-});
 
 //PUT /tasks/:id 
 app.put('/tasks/:id', (req, res) => {
@@ -58,9 +37,6 @@ app.put('/tasks/:id', (req, res) => {
 });
 
 
-
-
-const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
