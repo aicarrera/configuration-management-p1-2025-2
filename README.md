@@ -4,6 +4,8 @@ Implement version management in a collaborative development project using Git, w
 
 # Frontend
 Developer Guido Flores:
+
+
 Implemented a local task list where the user can add new tasks.
 
 
