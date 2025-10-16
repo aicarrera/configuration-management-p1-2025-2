@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Task Tracker</title>
+    <style>
+        body { font-family: sans-serif; }
+        #tasks-container { margin-top: 20px; }
+        .task-item { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>Team Task Tracker</h1>
+
+    <h2>Añadir Nueva Tarea</h2>
+    <form id="add-task-form">
+        <input type="text" id="task-title" placeholder="Título de la tarea" required>
+        <button type="submit">Añadir Tarea</button>
+    </form>
+
+    <h2>Lista de Tareas</h2>
+    <div id="tasks-list">
+        </div>
+
+    <script src="script.js" defer></script>
+
+</body>
+</html>
