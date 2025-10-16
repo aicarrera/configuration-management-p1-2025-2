@@ -1,17 +1,66 @@
-<script>
-  function load() {
-    const tasks = [
-      { id: 1, title: "Tarea de ejemplo", completed: false },
-      { id: 2, title: "Otra tarea", completed: true }
-    ];
-    const list = document.getElementById("list");
-    list.innerHTML = "";
-    tasks.forEach(t => {
-      const li = document.createElement("li");
-      li.textContent = t.title + (t.completed ? "-" : "");
-      list.appendChild(li);
-    });
-  }
-  load();
-</script>
-<ul id="list"></ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    
+</head>
+<body>
+    <h1>Task Manager</h1>
+    
+    <div class="stats">
+        <span>Total: <strong id="totalTasks">0</strong></span> | 
+        <span>Completed: <strong id="completedTasks">0</strong></span> | 
+        <span>Pending: <strong id="pendingTasks">0</strong></span>
+    </div>
+
+    <div class="task-form">
+        <input type="text" id="taskInput" class="task-input" placeholder="Enter a new task...">
+        <button onclick="addTask()">Add</button>
+    </div>
+
+    <ul id="taskList" class="task-list"></ul>
+    <p id="emptyState">No tasks yet.</p>
+
+    <script>
+        let tasks = [];
+        let editingTaskId = null;     
+
+        function saveTask(id) {
+            const input = document.getElementById(`edit-input-${id}`);
+            const newText = input.value.trim();
+
+            if (newText === '') {
+                alert('Task cannot be empty!');
+                return;
+            }
+
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.text = newText;
+                saveTasks();
+            }
+
+            editingTaskId = null;
+            renderTasks();
+        }
+
+        function load() {
+          const tasks = [
+            { id: 1, title: "Tarea de ejemplo", completed: false },
+            { id: 2, title: "Otra tarea", completed: true }
+          ];
+          const list = document.getElementById("list");
+          list.innerHTML = "";
+          tasks.forEach(t => {
+            const li = document.createElement("li");
+            li.textContent = t.title + (t.completed ? "-" : "");
+            list.appendChild(li);
+          });
+        }
+        load();
+
+    </script>
+</body>
+</html>
