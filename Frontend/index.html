@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Team Task Tracker</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --muted: #94a3b8;
+      --text: #e5e7eb;
+      --primary: #22c55e;
+      --primary-700: #15803d;
+      --accent: #38bdf8;
+      --border: #1f2937;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --radius: 14px;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: radial-gradient(1200px 600px at 10% -10%, #1e293b 10%, transparent 40%),
+        radial-gradient(1200px 600px at 110% 10%, #0b3b4b 5%, transparent 45%),
+        var(--bg);
+      margin: 0;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .wrap {
+      max-width: 920px;
+      margin: 48px auto;
+      padding: 0 20px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.2);
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      margin: 0;
+      letter-spacing: 0.3px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 30%),
+        var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.08), transparent 60%);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: #0b1220;
+      color: var(--text);
+      border: 1px solid #0f1b2e;
+      border-radius: 10px;
+      padding: 12px 14px;
+      outline: none;
+      transition: box-shadow .15s ease, border-color .15s ease;
+    }
+
+    input[type="text"]::placeholder {
+      color: #6b7280;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    button {
+      background: linear-gradient(180deg, var(--primary), var(--primary-700));
+      color: white;
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      transition: transform .05s ease, filter .15s ease, box-shadow .15s ease;
+      box-shadow: 0 6px 18px rgba(34, 197, 94, 0.25);
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .summary {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      padding: 2px 6px;
+    }
+
+    .chip {
+      font-size: 0.85rem;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #0b1220;
+      color: var(--text);
+    }
+
+    .list {
+      padding: 6px 10px 8px;
+    }
+
+    ul.tasks {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    li.task {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px dashed #0f1b2e;
+    }
+
+    li.task:last-child {
+      border-bottom: none;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--primary);
+      transform: translateY(1px);
+    }
+
+    .titleBlock {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .taskTitle {
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .taskTitle.done {
+      color: #9ca3af;
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: rgba(156, 163, 175, 0.8);
+    }
+
+    .metaRow {
+      display: flex;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .badge.done {
+      background: rgba(34, 197, 94, 0.08);
+      color: #86efac;
+      border-color: rgba(34, 197, 94, 0.25);
+    }
+
+    .badge.todo {
+      background: rgba(56, 189, 248, 0.08);
+      color: #7dd3fc;
+      border-color: rgba(56, 189, 248, 0.25);
+    }
+
+    .error {
+      padding: 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      color: #fca5a5;
+      text-align: center;
+      margin: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Team Task Tracker</h1>
+          <div class="meta">Conectado a localhost:3001</div>
+        </div>
+      </div>
+      <div class="summary">
+        <span id="countAll" class="chip">Total: 0</span>
+        <span id="countOpen" class="chip">Pendientes: 0</span>
+        <span id="countDone" class="chip">Completadas: 0</span>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="toolbar">
+        <input id="inputTitle" type="text" placeholder="Nueva tarea (p. ej. Escribir reporte)..." minlength="2"
+          required />
+        <button id="btnAdd">Agregar</button>
+      </div>
+
+      <div class="list">
+        <ul id="taskList" class="tasks" aria-live="polite"></ul>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:3001";
+
+    const api = {
+      async getTasks() {
+        const res = await fetch(`${API_BASE}/tasks`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        return await res.json();
+      },
+      async postTask(title) {
+        const res = await fetch(`${API_BASE}/tasks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        return await res.json();
+      },
+      async putTask(id, completed) {
+        const res = await fetch(`${API_BASE}/tasks/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ completed })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        return await res.json();
+      }
+    };
+
+    const state = {
+      items: [],
+      get stats() {
+        const total = this.items.length;
+        const done = this.items.filter(t => t.completed).length;
+        return { total, done, open: total - done };
+      }
+    };
+
+    const el = {
+      list: document.getElementById("taskList"),
+      input: document.getElementById("inputTitle"),
+      btnAdd: document.getElementById("btnAdd"),
+      countAll: document.getElementById("countAll"),
+      countOpen: document.getElementById("countOpen"),
+      countDone: document.getElementById("countDone")
+    };
+
+    function fmtDate(iso) {
+      try {
+        const d = new Date(iso);
+        const f = new Intl.DateTimeFormat("es-EC", {
+          dateStyle: "medium", timeStyle: "short"
+        });
+        return f.format(d);
+      } catch {
+        return iso;
+      }
+    }
+
+    function render() {
+      const sorted = [...state.items].sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+
+      el.list.innerHTML = sorted.map(t => {
+        const done = t.completed ? "done" : "";
+        const badge = t.completed ? '<span class="badge done">Completada</span>' :
+          '<span class="badge todo">Pendiente</span>';
+        const completedInfo = t.completedAt ? `<span>Completada: ${fmtDate(t.completedAt)}</span>` : "";
+
+        return `
+          <li class="task" data-id="${t.id}">
+            <div class="check">
+              <input type="checkbox" ${t.completed ? "checked" : ""} aria-label="Marcar completada">
+            </div>
+            <div class="titleBlock">
+              <div class="taskTitle ${done}">${escapeHtml(t.title)}</div>
+              <div class="metaRow">
+                ${badge}
+                <span>Creada: ${fmtDate(t.createdAt)}</span>
+                ${completedInfo}
+              </div>
+            </div>
+          </li>
+        `;
+      }).join("");
+
+      const { total, open, done } = state.stats;
+      el.countAll.textContent = `Total: ${total}`;
+      el.countOpen.textContent = `Pendientes: ${open}`;
+      el.countDone.textContent = `Completadas: ${done}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function showError(msg) {
+      el.list.innerHTML = `<div class="error">${escapeHtml(msg)}</div>`;
+    }
+
+    el.btnAdd.addEventListener("click", async () => {
+      const title = el.input.value.trim();
+      if (title.length < 2) {
+        el.input.focus();
+        return;
+      }
+      try {
+        const created = await api.postTask(title);
+        state.items.unshift(created);
+        el.input.value = "";
+        render();
+      } catch (err) {
+        alert("No se pudo agregar la tarea: " + err.message);
+      }
+    });
+
+    el.input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        el.btnAdd.click();
+      }
+    });
+
+    el.list.addEventListener("change", async (e) => {
+      const li = e.target.closest("li.task");
+      if (!li) return;
+      const id = Number(li.dataset.id);
+      if (e.target.matches('input[type="checkbox"]')) {
+        const newCompleted = e.target.checked;
+        try {
+          const updated = await api.putTask(id, newCompleted);
+          const idx = state.items.findIndex(t => t.id === id);
+          if (idx !== -1) state.items[idx] = updated;
+          render();
+        } catch (err) {
+          alert("No se pudo actualizar la tarea: " + err.message);
+          e.target.checked = !newCompleted;
+        }
+      }
+    });
+
+    async function bootstrap() {
+      try {
+        state.items = await api.getTasks();
+        render();
+      } catch (err) {
+        showError("Error al conectar con el backend en localhost:3001. Asegúrate de que el servidor esté corriendo.");
+        console.error(err);
+      }
+    }
+
+    bootstrap();
+  </script>
+</body>
+
+</html>
