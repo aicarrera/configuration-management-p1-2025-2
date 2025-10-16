@@ -1,11 +1,251 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Team Task Tracker</title>
-  
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --muted: #94a3b8;
+      --text: #e5e7eb;
+      --primary: #22c55e;
+      --primary-700: #15803d;
+      --accent: #38bdf8;
+      --border: #1f2937;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --radius: 14px;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: radial-gradient(1200px 600px at 10% -10%, #1e293b 10%, transparent 40%),
+        radial-gradient(1200px 600px at 110% 10%, #0b3b4b 5%, transparent 45%),
+        var(--bg);
+      margin: 0;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .wrap {
+      max-width: 920px;
+      margin: 48px auto;
+      padding: 0 20px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.2);
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      margin: 0;
+      letter-spacing: 0.3px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 30%),
+        var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.08), transparent 60%);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: #0b1220;
+      color: var(--text);
+      border: 1px solid #0f1b2e;
+      border-radius: 10px;
+      padding: 12px 14px;
+      outline: none;
+      transition: box-shadow .15s ease, border-color .15s ease;
+    }
+
+    input[type="text"]::placeholder {
+      color: #6b7280;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    button {
+      background: linear-gradient(180deg, var(--primary), var(--primary-700));
+      color: white;
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      transition: transform .05s ease, filter .15s ease, box-shadow .15s ease;
+      box-shadow: 0 6px 18px rgba(34, 197, 94, 0.25);
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .summary {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      padding: 2px 6px;
+    }
+
+    .chip {
+      font-size: 0.85rem;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #0b1220;
+      color: var(--text);
+    }
+
+    .list {
+      padding: 6px 10px 8px;
+    }
+
+    ul.tasks {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    li.task {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px dashed #0f1b2e;
+    }
+
+    li.task:last-child {
+      border-bottom: none;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--primary);
+      transform: translateY(1px);
+    }
+
+    .titleBlock {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .taskTitle {
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .taskTitle.done {
+      color: #9ca3af;
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: rgba(156, 163, 175, 0.8);
+    }
+
+    .metaRow {
+      display: flex;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .badge.done {
+      background: rgba(34, 197, 94, 0.08);
+      color: #86efac;
+      border-color: rgba(34, 197, 94, 0.25);
+    }
+
+    .badge.todo {
+      background: rgba(56, 189, 248, 0.08);
+      color: #7dd3fc;
+      border-color: rgba(56, 189, 248, 0.25);
+    }
+
+    .error {
+      padding: 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      color: #fca5a5;
+      text-align: center;
+      margin: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
 </head>
+
 <body>
   <div class="wrap">
     <header>
@@ -25,7 +265,8 @@
 
     <section class="panel">
       <div class="toolbar">
-        <input id="inputTitle" type="text" placeholder="Nueva tarea (p. ej. Escribir reporte)..." minlength="2" required />
+        <input id="inputTitle" type="text" placeholder="Nueva tarea (p. ej. Escribir reporte)..." minlength="2"
+          required />
         <button id="btnAdd">Agregar</button>
       </div>
 
@@ -95,7 +336,7 @@
     }
 
     function render() {
-      const sorted = [...state.items].sort((a,b) => {
+      const sorted = [...state.items].sort((a, b) => {
         if (a.completed !== b.completed) return a.completed ? 1 : -1;
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
@@ -103,7 +344,7 @@
       el.list.innerHTML = sorted.map(t => {
         const done = t.completed ? "done" : "";
         const badge = t.completed ? '<span class="badge done">Completada</span>' :
-                                    '<span class="badge todo">Pendiente</span>';
+          '<span class="badge todo">Pendiente</span>';
         const completedInfo = t.completedAt ? `<span>Completada: ${fmtDate(t.completedAt)}</span>` : "";
 
         return `
@@ -196,4 +437,5 @@
     bootstrap();
   </script>
 </body>
+
 </html>
